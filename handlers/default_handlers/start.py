@@ -1,6 +1,6 @@
 from telebot.types import Message
 
-from venv.loader import bot
+from settings import bot
 
 
 @bot.message_handler(commands=["start"])
