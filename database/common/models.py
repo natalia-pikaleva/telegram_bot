@@ -11,5 +11,5 @@ class ModelBase(pw.Model):
         database = db
 
 class History(ModelBase):
-    number = pw.TextField()
+    movie_name = pw.TextField()
     message = pw.TextField()
