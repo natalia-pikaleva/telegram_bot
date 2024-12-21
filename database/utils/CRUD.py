@@ -7,11 +7,11 @@ from database.common.models import ModelBase
 T = TypeVar('T')
 
 def _store_date(db: db, model: T, *data: List[Dict]) -> None:
-    with db.atonic():
+    with db.atomic():
         model.insert_many(*data).execute()
 
 def _retrieve_all_date(db: db, model: T, *columns: ModelBase) -> ModelSelect:
-    with db.atonic():
+    with db.atomic():
         response = model.select(*columns)
 
     return response
