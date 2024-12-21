@@ -1,5 +1,6 @@
 import requests
 
+
 url = "https://booking-com18.p.rapidapi.com/web/stays/details"
 
 querystring = {"id":"us/mayfair-new-york"}
