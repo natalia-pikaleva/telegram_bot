@@ -11,10 +11,11 @@ from config_data import config
 storage = StateMemoryStorage()
 bot = TeleBot(token=config.BOT_TOKEN, state_storage=storage)
 
+from states import models
 
 load_dotenv()
 
-class SiteSettings(BaseSettings):
-    api_key: SecretStr = os.getenv('SITE_API', None)
-    host_api: SecretStr = os.getenv('HOST_API', None)
 
+class SiteSettings(BaseSettings):
+    api_key: SecretStr = os.getenv("SITE_API", None)
+    host_api: SecretStr = os.getenv("HOST_API", None)
