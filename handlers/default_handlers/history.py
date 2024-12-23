@@ -10,7 +10,7 @@ from states.models import users_state, add_user, get_state
 from .start import db_read
 
 
-def send_message(user_id, data):
+def send_message(user_id: int, data: dict) -> None:
     """
     Функция получает на входе id чата и список фильмов и выводит в чат информацию
     об этих фильмах
@@ -40,7 +40,12 @@ def send_message(user_id, data):
 
 
 @bot.message_handler(commands=["history"])
-def bot_history(message: Message):
+def bot_history(message: Message) -> None:
+    """
+    Функция получает на входе команду history и выводит в чат бота
+    историю запросов
+    :param message: сообщение пользователя
+    """
     user_id = message.chat.id
     if not user_id in users_state:
         add_user(user_id)

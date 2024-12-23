@@ -15,10 +15,3 @@ class ModelBase(pw.Model):
 class History(ModelBase):
     date = pw.TextField()
     movie_info = pw.TextField()
-    #
-    # description = pw.TextField()
-    # rating = pw.TextField()
-    # year = pw.TextField()
-    # genres = pw.TextField()
-    # ageRating = pw.TextField()
-    # poster = pw.TextField()
