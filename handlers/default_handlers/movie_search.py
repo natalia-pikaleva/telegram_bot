@@ -1,6 +1,7 @@
 from telebot.types import Message
 
 from settings import bot
+from site_API.core import site_api, url, headers
 
 from states.models import users_state, add_user, get_state
 
@@ -16,7 +17,3 @@ def bot_find_movie(message: Message):
 
     users_state[user_id].machine.choose_movie_name()
     bot.reply_to(message, "Введите название фильма")
-
-
-if __name__ == "__main__":
-    bot_find_movie()

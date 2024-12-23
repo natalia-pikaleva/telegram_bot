@@ -1,10 +1,13 @@
+from datetime import datetime
 from telebot.types import Message
 
+from database.common.models import History, db
+from database.core import crud
 from settings import bot
 from site_API.core import site_api, url, headers
 
 from states.models import users_state, add_user, get_state
-
+from .start import db_write, db_read
 import json
 
 
@@ -42,6 +45,10 @@ def send_message(user_id, data):
         )
         bot.send_message(user_id, "Постер: {}".format(data[index_movie]["poster"]))
 
+    data_history = {"date": datetime.now().strftime("%Y-%m-%d"), "movie_info": data}
+
+    db_write(db, History, data_history)
+
 
 def get_movie_info(movie_total_info: dict) -> dict:
     """
@@ -67,7 +74,7 @@ def get_movie_info(movie_total_info: dict) -> dict:
     return info_movie
 
 
-def search_movies_with_rating(rating, count_movie) -> list:
+def search_movies_with_rating(rating: float, count_movie: int) -> list:
     """
     Функция получает на входе рейтинг фильма rating и количество фильмов для вывода count_movies.
     Возвращает список фильмов с рейтингом от rating и выше в количестве count_movies
@@ -80,7 +87,7 @@ def search_movies_with_rating(rating, count_movie) -> list:
 
     new_url = url + "250" + "&rating.kp=" + str(rating) + "%20-%2010"
 
-    response = movie("GET", new_url, headers, rating, 5)
+    response = movie("GET", new_url, headers, 5)
     response = response.json()
 
     count = 0
@@ -102,7 +109,7 @@ def search_movies(movie_name, genre, count_movies):
 
     new_url = url + str(count_movies) + "&query=" + movie_name
 
-    response = movie("GET", new_url, headers, movie_name, 5)
+    response = movie("GET", new_url, headers, 5)
     response = response.json()
 
     for index_movie in range(len(response["docs"])):
@@ -116,6 +123,28 @@ def search_movies(movie_name, genre, count_movies):
     return data
 
 
+def search_movies_low_budget(budget, count_movies):
+    data = []
+    movie = site_api.get_movie()
+
+    new_url = url + "250" + "&budget.value=0" + str(budget)
+
+    response = movie("GET", new_url, headers, 5)
+    response = response.json()
+
+    count = 0
+    for index_movie in range(len(response["docs"])):
+        if count >= count_movies:
+            return data
+
+        movie_info = get_movie_info(response["docs"][index_movie])
+
+        data.append(movie_info)
+        count += 1
+
+    return data
+
+
 @bot.message_handler(content_types=["text"])
 def handle_message(message: Message, info_for_find={}):
     user_id = message.chat.id
@@ -125,22 +154,24 @@ def handle_message(message: Message, info_for_find={}):
     state = get_state(user_id)
 
     if state == "choosing_movie_name":
+        # Команда Найти информацию о фильме, этап Ввод названия фильма
         movie_name = message.text.capitalize()
         info_for_find["movie_name"] = movie_name
         bot.reply_to(message, "Введите жанр фильма")
         users_state[user_id].machine.choose_movie_genre()
 
     elif state == "choosing_movie_genre":
+        # Команда Найти информацию о фильме, этап Ввод жанра
         movie_genre = message.text.lower()
         info_for_find["movie_genre"] = movie_genre
         bot.reply_to(message, "Введите количество фильмов для вывода")
         users_state[user_id].machine.choose_count_movies()
 
     elif state == "choosing_count_movies":
+        # Команда Найти информацию о фильме, этап Ввод количество фильмов к выводу
         try:
             count_movies = int(message.text)
             info_for_find["count_movies"] = count_movies
-            users_state[user_id].machine.final()
 
             data = search_movies(
                 movie_name=info_for_find["movie_name"],
@@ -149,13 +180,16 @@ def handle_message(message: Message, info_for_find={}):
             )
 
             send_message(user_id, data)
+            users_state[user_id].machine.final()
 
-        except Exception:
+        except Exception as ex:
+            print(ex)
 
             bot.reply_to(message, "Количество фильмов должно быть числом")
             bot.reply_to(message, "Введите количество фильмов для получения информации")
 
     elif state == "choosing_movie_rating":
+        # Команда Найти фильм по рейтингу, этап Ввод рейтинга
 
         try:
             movie_rating = float(message.text.replace(",", "."))
@@ -167,24 +201,66 @@ def handle_message(message: Message, info_for_find={}):
         except Exception as ex:
             print(ex)
 
-            bot.reply_to(message, "Рейтинг должен быть числом, например 8,5 или 9")
+            bot.reply_to(message, "Рейтинг должен быть числом, например 8.5 или 9")
             bot.reply_to(message, "Введите рейтинг")
 
     elif state == "choosing_count_movie_rating":
+        # Команда Найти фильм по рейтингу, этап Ввод количества фильмов к выводу
 
         try:
             count_movies = int(message.text)
-            info_for_find["count_movies"] = count_movies
-            users_state[user_id].machine.final()
-
             data = search_movies_with_rating(
                 info_for_find["movie_rating"], count_movies
             )
-
             send_message(user_id, data)
+
+            users_state[user_id].machine.final()
 
         except Exception as ex:
             print(ex)
 
             bot.reply_to(message, "Количество фильмов должно быть числом")
             bot.reply_to(message, "Введите количество фильмов для получения информации")
+
+    elif state == "choosing_low_budget_movie":
+        # Команда Найти фильм с низким бюджетом, этап Ввод суммы бюджета
+
+        try:
+            info_for_find["budget"] = int(message.text)
+
+            bot.reply_to(message, "Введите количество фильмов для вывода")
+
+            users_state[user_id].machine.choose_count_low_budget()
+
+        except Exception as ex:
+            print(ex)
+
+            bot.reply_to(
+                message, "Бюджет фильма должен быть целым числом, например 250 000"
+            )
+            bot.reply_to(message, "Введите сумму бюджета для поиска фильмов")
+
+    elif state == "choosing_count_low_budget_movie":
+        # Команда Найти фильм с низким бюджетом, этап Ввод количества фильмов к выводу
+
+        try:
+            count_movies = int(message.text)
+
+            data = search_movies_low_budget(info_for_find["budget"], count_movies)
+
+            send_message(user_id, data)
+            users_state[user_id].machine.final()
+
+        except Exception as ex:
+            print(ex)
+
+            bot.reply_to(message, "Количество фильмов должно быть числом")
+            bot.reply_to(message, "Введите количество фильмов для получения информации")
+
+    elif state == "start":
+        # Состояние Старт - пользователь отправил любое сообщение
+        bot.reply_to(message, "Не понимаю вашу команду")
+        bot.send_message(
+            user_id,
+            "Нажмите на кнопку help в меню, чтобы узнать доступные запросы",
+        )

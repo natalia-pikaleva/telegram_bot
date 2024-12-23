@@ -12,6 +12,8 @@ class UsersState:
                 "choosing_count_movies",
                 "choosing_movie_rating",
                 "choosing_count_movie_rating",
+                "choosing_low_budget_movie",
+                "choosing_count_low_budget_movie",
             ],
             initial="start",
         )
@@ -42,6 +44,19 @@ class UsersState:
         )
         self.machine.add_transition(
             trigger="final", source="choosing_count_movie_rating", dest="start"
+        )
+        self.machine.add_transition(
+            trigger="choose_low_budget",
+            source="start",
+            dest="choosing_low_budget_movie",
+        )
+        self.machine.add_transition(
+            trigger="choose_count_low_budget",
+            source="choosing_low_budget_movie",
+            dest="choosing_count_low_budget_movie",
+        )
+        self.machine.add_transition(
+            trigger="final", source="choosing_count_low_budget_movie", dest="start"
         )
 
 

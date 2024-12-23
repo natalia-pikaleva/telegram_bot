@@ -2,14 +2,23 @@ from datetime import datetime
 
 import peewee as pw
 
-db = pw.SqliteDatabase('history.db')
+db = pw.SqliteDatabase("new_history.db")
+
 
 class ModelBase(pw.Model):
     created_at = pw.DateField(default=datetime.now())
 
-    class Meta():
+    class Meta:
         database = db
 
+
 class History(ModelBase):
-    movie_name = pw.TextField()
-    message = pw.TextField()
+    date = pw.TextField()
+    movie_info = pw.TextField()
+    #
+    # description = pw.TextField()
+    # rating = pw.TextField()
+    # year = pw.TextField()
+    # genres = pw.TextField()
+    # ageRating = pw.TextField()
+    # poster = pw.TextField()

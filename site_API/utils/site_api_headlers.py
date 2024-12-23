@@ -16,7 +16,6 @@ def _get_movie(
     method: str,
     url: str,
     headers: Dict,
-    movie_name: str,
     timeout: int,
     func=_make_response,
 ):
