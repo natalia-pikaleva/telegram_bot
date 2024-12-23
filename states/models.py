@@ -10,7 +10,8 @@ class UsersState:
                 "choosing_movie_name",
                 "choosing_movie_genre",
                 "choosing_count_movies",
-                "final",
+                "choosing_movie_rating",
+                "choosing_count_movie_rating",
             ],
             initial="start",
         )
@@ -31,6 +32,17 @@ class UsersState:
             trigger="final", source="choosing_count_movies", dest="start"
         )
         self.machine.add_transition(trigger="cancel", source="*", dest="start")
+        self.machine.add_transition(
+            trigger="choose_rating", source="start", dest="choosing_movie_rating"
+        )
+        self.machine.add_transition(
+            trigger="choose_count_movie_rating",
+            source="choosing_movie_rating",
+            dest="choosing_count_movie_rating",
+        )
+        self.machine.add_transition(
+            trigger="final", source="choosing_count_movie_rating", dest="start"
+        )
 
 
 # Словарь для хранения машин состояний пользователей
