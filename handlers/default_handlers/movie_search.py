@@ -6,7 +6,9 @@ from site_API.core import site_api, url, headers
 from states.models import users_state, add_user, get_state
 
 
-@bot.message_handler(commands=["movie_search"])
+@bot.message_handler(
+    func=lambda message: message.text == "Найти информацию о фильме/сериале"
+)
 def bot_find_movie(message: Message) -> None:
     """
     Функция получает на входе команду "movie_search" и переключает состояние

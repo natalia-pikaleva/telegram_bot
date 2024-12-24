@@ -40,7 +40,7 @@ def send_message(user_id: int, data: dict) -> None:
     bot.send_message(user_id, "Постер: {}".format(data["poster"]))
 
 
-@bot.message_handler(commands=["history"])
+@bot.message_handler(func=lambda message: message.text == "Просмотр истории запросов")
 def bot_history(message: Message) -> None:
     """
     Функция получает на входе команду history и переключает состояние

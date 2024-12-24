@@ -222,7 +222,7 @@ def handle_message(message: Message, info_for_find={}) -> None:
         bot.reply_to(message, "Не понимаю вашу команду")
         bot.send_message(
             user_id,
-            "Нажмите на кнопку help в меню, чтобы узнать доступные запросы",
+            "Нажимай на кнопки в меню и я предложу тебе фильмы/сериалы по твоему запросу",
         )
 
     elif state == "choosing_date_of_history":
