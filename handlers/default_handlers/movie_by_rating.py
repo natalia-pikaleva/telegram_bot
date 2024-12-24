@@ -65,15 +65,19 @@ def search_movies_with_rating(rating: float, count_movie: int) -> list:
     new_url = url + "250" + "&rating.kp=" + str(rating) + "%20-%2010"
 
     response = movie("GET", new_url, headers, 5)
-    response = response.json()
+
+    response = response.json()["docs"]
+
+    sorted_movie_list = sorted(response, key=lambda x: x["rating"]["kp"])
 
     count = 0
-    for index_movie in range(min(len(response["docs"]), count_movie)):
+    for i_movie in sorted_movie_list:
         if count >= count_movie:
-            return data
-        movie_info = get_movie_info(response["docs"][index_movie])
-        rating_i_movie = response["docs"][index_movie]["rating"]["kp"]
-        if float(rating_i_movie) >= rating:
+            break
+
+        if float(i_movie["rating"]["kp"]) >= rating:
+            movie_info = get_movie_info(i_movie)
+
             data.append(movie_info)
             count += 1
 

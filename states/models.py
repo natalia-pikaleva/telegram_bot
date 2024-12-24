@@ -16,6 +16,7 @@ class UsersState:
                 "choosing_count_low_budget_movie",
                 "choosing_high_budget_movie",
                 "choosing_count_high_budget_movie",
+                "choosing_date_of_history",
             ],
             initial="start",
         )
@@ -32,9 +33,7 @@ class UsersState:
             source="choosing_movie_genre",
             dest="choosing_count_movies",
         )
-        self.machine.add_transition(
-            trigger="final", source="choosing_count_movies", dest="start"
-        )
+
         self.machine.add_transition(trigger="cancel", source="*", dest="start")
         self.machine.add_transition(
             trigger="choose_rating", source="start", dest="choosing_movie_rating"
@@ -44,9 +43,7 @@ class UsersState:
             source="choosing_movie_rating",
             dest="choosing_count_movie_rating",
         )
-        self.machine.add_transition(
-            trigger="final", source="choosing_count_movie_rating", dest="start"
-        )
+
         self.machine.add_transition(
             trigger="choose_low_budget",
             source="start",
@@ -57,9 +54,7 @@ class UsersState:
             source="choosing_low_budget_movie",
             dest="choosing_count_low_budget_movie",
         )
-        self.machine.add_transition(
-            trigger="final", source="choosing_count_low_budget_movie", dest="start"
-        )
+
         self.machine.add_transition(
             trigger="choose_high_budget",
             source="start",
@@ -70,9 +65,13 @@ class UsersState:
             source="choosing_high_budget_movie",
             dest="choosing_count_high_budget_movie",
         )
+
         self.machine.add_transition(
-            trigger="final", source="choosing_count_high_budget_movie", dest="start"
+            trigger="choose_date_of_history",
+            source="start",
+            dest="choosing_date_of_history",
         )
+        self.machine.add_transition(trigger="final", source="*", dest="start")
 
 
 # Словарь для хранения машин состояний пользователей

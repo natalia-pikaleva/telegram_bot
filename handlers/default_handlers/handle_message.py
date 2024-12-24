@@ -1,4 +1,6 @@
 from datetime import datetime
+from dateutil import parser
+
 from telebot.types import Message
 
 from database.common.models import History, db
@@ -11,6 +13,7 @@ from .movie_by_rating import search_movies_with_rating
 from .movie_search import search_movies
 from .low_budget_movie import search_movies_low_budget
 from .high_budget_movie import search_movies_high_budget
+from .history import print_history
 
 
 def send_message(user_id, data):
@@ -221,3 +224,17 @@ def handle_message(message: Message, info_for_find={}) -> None:
             user_id,
             "Нажмите на кнопку help в меню, чтобы узнать доступные запросы",
         )
+
+    elif state == "choosing_date_of_history":
+        # Команда Вывести историю запросов, этап Ввод даты
+
+        try:
+            date_of_history = parser.parse(message.text)
+            formatted_date = date_of_history.strftime("%Y-%m-%d")
+            print_history(user_id, formatted_date)
+
+            users_state[user_id].machine.final()
+
+        except ValueError:
+            bot.reply_to(message, "Неверный формат даты")
+            bot.reply_to(message, "За какую дату вывести историю запросов?")

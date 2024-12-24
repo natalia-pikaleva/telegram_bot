@@ -65,7 +65,7 @@ def search_movies_high_budget(budget: int, count_movies: int) -> list:
     data = []
     movie = site_api.get_movie()
 
-    url_budget = "https://api.kinopoisk.dev/v1.4/movie?page=1&limit=10&selectFields=name&selectFields=year&selectFields=budget&selectFields=rating&selectFields=ageRating&selectFields=genres&selectFields=description&selectFields=poster&budget.value="
+    url_budget = "https://api.kinopoisk.dev/v1.4/movie?page=1&limit=250&selectFields=name&selectFields=year&selectFields=budget&selectFields=rating&selectFields=ageRating&selectFields=genres&selectFields=description&selectFields=poster&budget.value="
     new_url = url_budget + str(budget) + "-1000000000"
 
     response = movie("GET", new_url, headers, 5)

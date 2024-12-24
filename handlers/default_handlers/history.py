@@ -1,6 +1,7 @@
 import ast
 import json
 from pprint import pprint
+import flet
 
 from telebot.types import Message
 from settings import bot
@@ -42,26 +43,47 @@ def send_message(user_id: int, data: dict) -> None:
 @bot.message_handler(commands=["history"])
 def bot_history(message: Message) -> None:
     """
-    Функция получает на входе команду history и выводит в чат бота
-    историю запросов
+    Функция получает на входе команду history и переключает состояние
+    пользователя на choosing_date_of_history
     :param message: сообщение пользователя
     """
+
     user_id = message.chat.id
     if not user_id in users_state:
         add_user(user_id)
 
-    bot.reply_to(message, "История запросов:")
+    if get_state(user_id) != "start":
+        users_state[user_id].machine.cancel()
+
+    users_state[user_id].machine.choose_date_of_history()
+    bot.reply_to(
+        message,
+        "За какую дату вывести историю запросов?",
+    )
+
+
+def print_history(user_id: int, date: str) -> None:
+    """
+    Функция получает на входе id чата и дату и выводит в чат бота историю запросов на эту дату
+    :param user_id: id чата
+    :param date: дата, за которую нужно вывести историю запросов
+    """
+
+    bot.send_message(user_id, "История запросов за {}:".format(date))
 
     retrieved = db_read(db, History, History.date, History.movie_info)
 
+    flag = True
     for element in retrieved:
-        bot.send_message(user_id, "Дата: {}:".format(element.date))
+        history_date = element.date
 
-        movies_list = ast.literal_eval(element.movie_info)
+        if history_date == date:
+            flag = False
 
-        for i_movie in movies_list:
-            send_message(user_id, i_movie)
+            movies_list = ast.literal_eval(element.movie_info)
 
+            for i_movie in movies_list:
+                send_message(user_id, i_movie)
 
-if __name__ == "__main__":
-    bot_history()
+    if flag:
+        bot.send_message(user_id, "На указанную дату не было запросов")
