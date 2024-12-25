@@ -3,65 +3,13 @@ from dateutil import parser
 
 from telebot.types import Message
 
-from database.common.models import History, db
-
 from settings import bot
 
 from states.models import users_state, add_user, get_state
-from .start import db_write
-from .movie_by_rating import search_movies_with_rating
-from .movie_search import search_movies
-from .low_budget_movie import search_movies_low_budget
-from .high_budget_movie import search_movies_high_budget
-from .history import print_history
 
-
-def send_message(user_id, data):
-    """
-    Функция получает на входе id чата и список фильмов и выводит в чат информацию
-    об этих фильмах
-    :param user_id: id чата
-    :param data: список фильмов
-    """
-
-    if len(data) == 0:
-        bot.send_message(user_id, "По вашему запросу фильмы не найдены")
-
-    for index_movie in range(len(data)):
-        bot.send_message(user_id, 'Информация о фильме "{}":'.format(index_movie + 1))
-
-        bot.send_message(user_id, "Название: {}".format(data[index_movie]["name"]))
-
-        try:
-            bot.send_message(
-                user_id,
-                "Бюджет фильма: {}".format(data[index_movie]["budget"]["value"]),
-            )
-        except Exception:
-            print()
-
-        bot.send_message(
-            user_id,
-            "Описание: {}".format(data[index_movie]["description"]),
-        )
-        bot.send_message(
-            user_id,
-            "Рейтинг: {}".format(data[index_movie]["rating"]),
-        )
-        bot.send_message(user_id, "Год: {}".format(data[index_movie]["year"]))
-
-        genres = ", ".join([i_genre["name"] for i_genre in data[index_movie]["genres"]])
-
-        bot.send_message(user_id, "Жанр: {}".format(genres))
-        bot.send_message(
-            user_id,
-            "Возрастной рейтинг: {}".format(data[index_movie]["ageRating"]),
-        )
-        bot.send_message(user_id, "Постер: {}".format(data[index_movie]["poster"]))
-
-    data_history = {"date": datetime.now().strftime("%Y-%m-%d"), "movie_info": data}
-
-    db_write(db, History, data_history)
+from utils.set_bot_commands import send_message, search_movies_high_budget
+from utils.set_bot_commands import search_movies_low_budget, print_history
+from utils.set_bot_commands import search_movies_with_rating, search_movies
 
 
 @bot.message_handler(content_types=["text"])
