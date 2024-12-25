@@ -2,15 +2,9 @@ from telebot.types import Message
 
 from settings import bot
 
-
 from states.models import users_state, add_user, get_state
 
-from database.core import crud
-
 from keyboards.reply.core import create_menu
-
-db_write = crud.create()
-db_read = crud.retrieve()
 
 
 @bot.message_handler(commands=["start"])
