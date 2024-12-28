@@ -1,11 +1,10 @@
-from database.common.models import History, db
-from database.core import crud
-from site_API.core import site_api, url, headers
 from settings import bot
+
 import handlers
 from utils.set_bot_commands import set_default_commands
 
 
 if __name__ == "__main__":
+
     set_default_commands(bot)
     bot.infinity_polling(none_stop=True)

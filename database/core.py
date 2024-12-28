@@ -6,6 +6,8 @@ db.create_tables([History])
 
 crud = CRUDInterface()
 
-if __name__ == '__main__':
-    crud()
+db_write = crud.create()
+db_read = crud.retrieve()
 
+if __name__ == "__main__":
+    crud()
