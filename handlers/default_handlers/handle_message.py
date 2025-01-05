@@ -7,9 +7,13 @@ from settings import bot
 
 from states.models import users_state, add_user, get_state
 
-from utils.set_bot_commands import send_message, search_movies_high_budget
-from utils.set_bot_commands import search_movies_low_budget, print_history
+from utils.set_bot_commands import search_movies_high_budget
+from utils.set_bot_commands import search_movies_low_budget
 from utils.set_bot_commands import search_movies_with_rating, search_movies
+from .history import print_history
+
+from database.common.models import History, db
+from database.core import db_write
 
 
 @bot.message_handler(content_types=["text"])
@@ -186,3 +190,51 @@ def handle_message(message: Message, info_for_find={}) -> None:
         except ValueError:
             bot.reply_to(message, "Неверный формат даты")
             bot.reply_to(message, "За какую дату вывести историю запросов?")
+
+
+def send_message(user_id, data):
+    """
+    Функция получает на входе id чата и список фильмов и выводит в чат информацию
+    об этих фильмах
+    :param user_id: id чата
+    :param data: список фильмов
+    """
+
+    if len(data) == 0:
+        bot.send_message(user_id, "По вашему запросу фильмы не найдены")
+
+    for index_movie in range(len(data)):
+        bot.send_message(user_id, 'Информация о фильме "{}":'.format(index_movie + 1))
+
+        bot.send_message(user_id, "Название: {}".format(data[index_movie]["name"]))
+
+        try:
+            bot.send_message(
+                user_id,
+                "Бюджет фильма: {}".format(data[index_movie]["budget"]["value"]),
+            )
+        except Exception:
+            print()
+
+        bot.send_message(
+            user_id,
+            "Описание: {}".format(data[index_movie]["description"]),
+        )
+        bot.send_message(
+            user_id,
+            "Рейтинг: {}".format(data[index_movie]["rating"]),
+        )
+        bot.send_message(user_id, "Год: {}".format(data[index_movie]["year"]))
+
+        genres = ", ".join([i_genre["name"] for i_genre in data[index_movie]["genres"]])
+
+        bot.send_message(user_id, "Жанр: {}".format(genres))
+        bot.send_message(
+            user_id,
+            "Возрастной рейтинг: {}".format(data[index_movie]["ageRating"]),
+        )
+        bot.send_message(user_id, "Постер: {}".format(data[index_movie]["poster"]))
+
+    data_history = {"date": datetime.now().strftime("%Y-%m-%d"), "movie_info": data}
+
+    db_write(db, History, data_history)

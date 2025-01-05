@@ -7,7 +7,6 @@ import ast
 
 from telebot.types import Message
 
-from database.common.models import History, db
 
 from settings import bot
 
@@ -23,58 +22,6 @@ from states.models import users_state, add_user, get_state
 
 def set_default_commands(bot):
     bot.set_my_commands([BotCommand(*i) for i in DEFAULT_COMMANDS])
-
-
-db_write = crud.create()
-db_read = crud.retrieve()
-
-
-def send_message(user_id, data):
-    """
-    Функция получает на входе id чата и список фильмов и выводит в чат информацию
-    об этих фильмах
-    :param user_id: id чата
-    :param data: список фильмов
-    """
-
-    if len(data) == 0:
-        bot.send_message(user_id, "По вашему запросу фильмы не найдены")
-
-    for index_movie in range(len(data)):
-        bot.send_message(user_id, 'Информация о фильме "{}":'.format(index_movie + 1))
-
-        bot.send_message(user_id, "Название: {}".format(data[index_movie]["name"]))
-
-        try:
-            bot.send_message(
-                user_id,
-                "Бюджет фильма: {}".format(data[index_movie]["budget"]["value"]),
-            )
-        except Exception:
-            print()
-
-        bot.send_message(
-            user_id,
-            "Описание: {}".format(data[index_movie]["description"]),
-        )
-        bot.send_message(
-            user_id,
-            "Рейтинг: {}".format(data[index_movie]["rating"]),
-        )
-        bot.send_message(user_id, "Год: {}".format(data[index_movie]["year"]))
-
-        genres = ", ".join([i_genre["name"] for i_genre in data[index_movie]["genres"]])
-
-        bot.send_message(user_id, "Жанр: {}".format(genres))
-        bot.send_message(
-            user_id,
-            "Возрастной рейтинг: {}".format(data[index_movie]["ageRating"]),
-        )
-        bot.send_message(user_id, "Постер: {}".format(data[index_movie]["poster"]))
-
-    data_history = {"date": datetime.now().strftime("%Y-%m-%d"), "movie_info": data}
-
-    db_write(db, History, data_history)
 
 
 def get_movie_info(movie_total_info: dict) -> dict:
@@ -173,62 +120,6 @@ def search_movies_low_budget(budget: int, count_movies: int) -> list:
             count += 1
 
     return data
-
-
-def send_message_history(user_id: int, data: dict) -> None:
-    """
-    Функция получает на входе id чата и список фильмов и выводит в чат информацию
-    об этих фильмах
-    :param user_id: id чата
-    :param data: список фильмов
-    """
-
-    bot.send_message(user_id, "Название: {}".format(data["name"]))
-    bot.send_message(
-        user_id,
-        "Описание: {}".format(data["description"]),
-    )
-    bot.send_message(
-        user_id,
-        "Рейтинг: {}".format(data["rating"]),
-    )
-    bot.send_message(user_id, "Год: {}".format(data["year"]))
-
-    genres = ", ".join([i_genre["name"] for i_genre in data["genres"]])
-
-    bot.send_message(user_id, "Жанр: {}".format(genres))
-    bot.send_message(
-        user_id,
-        "Возрастной рейтинг: {}".format(data["ageRating"]),
-    )
-    bot.send_message(user_id, "Постер: {}".format(data["poster"]))
-
-
-def print_history(user_id: int, date: str) -> None:
-    """
-    Функция получает на входе id чата и дату и выводит в чат бота историю запросов на эту дату
-    :param user_id: id чата
-    :param date: дата, за которую нужно вывести историю запросов
-    """
-
-    bot.send_message(user_id, "История запросов за {}:".format(date))
-
-    retrieved = db_read(db, History, History.date, History.movie_info)
-
-    flag = True
-    for element in retrieved:
-        history_date = element.date
-
-        if history_date == date:
-            flag = False
-
-            movies_list = ast.literal_eval(element.movie_info)
-
-            for i_movie in movies_list:
-                send_message_history(user_id, i_movie)
-
-    if flag:
-        bot.send_message(user_id, "На указанную дату не было запросов")
 
 
 def search_movies_with_rating(rating: float, count_movie: int) -> list:
