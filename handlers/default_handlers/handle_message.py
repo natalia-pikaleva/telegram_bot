@@ -181,7 +181,8 @@ def handle_message(message: Message, info_for_find={}) -> None:
         # Команда Вывести историю запросов, этап Ввод даты
 
         try:
-            date_of_history = parser.parse(message.text)
+
+            date_of_history = parser.parse(message.text, dayfirst=True)
             formatted_date = date_of_history.strftime("%Y-%m-%d")
             print_history(user_id, formatted_date)
 
