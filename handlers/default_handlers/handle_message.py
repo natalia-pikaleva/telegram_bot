@@ -236,6 +236,10 @@ def send_message(user_id, data):
         )
         bot.send_message(user_id, "Постер: {}".format(data[index_movie]["poster"]))
 
-    data_history = {"date": datetime.now().strftime("%Y-%m-%d"), "movie_info": data}
+    data_history = {
+        "user_id": user_id,
+        "date": datetime.now().strftime("%Y-%m-%d"),
+        "movie_info": data,
+    }
 
     db_write(db, History, data_history)
