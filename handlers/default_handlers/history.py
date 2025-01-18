@@ -28,7 +28,7 @@ def bot_history(message: Message) -> None:
     users_state[user_id].machine.choose_date_of_history()
     bot.reply_to(
         message,
-        "За какую дату вывести историю запросов?",
+        "За какую дату вывести историю запросов? Введите дату в формате: dd.mm или dd.mm.yy",
     )
 
 
@@ -68,7 +68,7 @@ def print_history(user_id: int, date: str) -> None:
     :param date: дата, за которую нужно вывести историю запросов
     """
 
-    bot.send_message(user_id, "История запросов за {}:".format(date))
+    bot.send_message(user_id, "История запросов за {}: ".format(date))
 
     retrieved = db_read(db, History, History.date, History.movie_info)
 
