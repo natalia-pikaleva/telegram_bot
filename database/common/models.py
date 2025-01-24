@@ -2,7 +2,7 @@ from datetime import datetime
 
 import peewee as pw
 
-db = pw.SqliteDatabase("new_history.db")
+db = pw.SqliteDatabase("bot_history.db")
 
 
 class ModelBase(pw.Model):
@@ -13,5 +13,6 @@ class ModelBase(pw.Model):
 
 
 class History(ModelBase):
+    user_id = pw.TextField()
     date = pw.TextField()
     movie_info = pw.TextField()

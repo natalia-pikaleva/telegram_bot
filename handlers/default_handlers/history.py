@@ -70,13 +70,14 @@ def print_history(user_id: int, date: str) -> None:
 
     bot.send_message(user_id, "История запросов за {}: ".format(date))
 
-    retrieved = db_read(db, History, History.date, History.movie_info)
+    retrieved = db_read(db, History, History.date, History.movie_info, History.user_id)
 
     flag = True
     for element in retrieved:
+        history_user_id = int(element.user_id)
         history_date = element.date
 
-        if history_date == date:
+        if history_user_id == user_id and history_date == date:
             flag = False
 
             movies_list = ast.literal_eval(element.movie_info)
