@@ -3,7 +3,9 @@ from telebot.types import Message
 from settings import bot
 
 
-@bot.message_handler(func=lambda message: message.text == "Обо мне")
+@bot.message_handler(
+    func=lambda message: message.text == "Обо мне" or message.text == "/help"
+)
 def bot_help(message: Message) -> None:
     """
     Функция получает на входе команду help и выводит в чат бота список доступных команд

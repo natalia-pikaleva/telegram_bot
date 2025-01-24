@@ -130,3 +130,4 @@ dmypy.json
 .idea/*
 .env
 new_history.db
+bot_history.db
