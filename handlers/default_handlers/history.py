@@ -10,7 +10,10 @@ from database.common.models import History, db
 from database.core import db_read
 
 
-@bot.message_handler(func=lambda message: message.text == "Просмотр истории запросов")
+@bot.message_handler(
+    func=lambda message: message.text == "Просмотр истории запросов"
+    or message.text == "/history"
+)
 def bot_history(message: Message) -> None:
     """
     Функция получает на входе команду history и переключает состояние
